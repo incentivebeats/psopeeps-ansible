@@ -1,0 +1,57 @@
+---
+- name: Build and deploy PSO Peeps newserv
+  hosts: "{{ target | default('psopeeps_main') }}"
+  gather_facts: false
+  become: true
+  vars_files:
+    - group_vars/vault.yml
+
+  pre_tasks:
+    - name: Validate selected ship
+      ansible.builtin.assert:
+        that:
+          - ship is defined
+          - ship == 'all' or ship in newserv_ships
+        fail_msg: "Set a valid ship with -e ship=dev|test|live|vanilla|hardcore|frontend|all"
+
+    - name: Refuse all-ship deploy without explicit confirmation
+      ansible.builtin.assert:
+        that:
+          - ship != 'all' or confirm_all | default(false) | bool
+        fail_msg: "ship=all requires -e confirm_all=true"
+
+    - name: Set selected ship list
+      ansible.builtin.set_fact:
+        selected_ship_names: "{{ (newserv_ships.keys() | list) if ship == 'all' else [ship] }}"
+
+    - name: Show deployment target
+      ansible.builtin.debug:
+        msg:
+          - "target={{ target | default('psopeeps_main') }}"
+          - "ship={{ ship }}"
+          - "selected_ship_names={{ selected_ship_names }}"
+          - "newserv_ref={{ newserv_ref }}"
+          - "newserv_source_dir={{ newserv_source_dir }}"
+          - "newserv_build_dir={{ newserv_build_dir }}"
+
+  roles:
+    - role: source
+      tags:
+        - source
+        - build
+        - deploy
+
+    - role: build
+      tags:
+        - build
+        - deploy
+
+    - role: announce
+      tags:
+        - announce
+        - deploy
+
+    - role: deploy_newserv
+      tags:
+        - deploy
+        - restart

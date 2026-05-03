@@ -1,0 +1,6 @@
+---
+- name: Monitoring role placeholder
+  ansible.builtin.debug:
+    msg:
+      - "Monitor role intentionally not wired into upgrade.yml yet."
+      - "Use a separate monitor.yml later for Prometheus/Grafana/exporter setup."

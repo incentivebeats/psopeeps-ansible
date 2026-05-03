@@ -1,0 +1,138 @@
+---
+- name: Set deploy timestamp
+  ansible.builtin.command:
+    cmd: date -u +%Y%m%dT%H%M%SZ
+  register: newserv_deploy_timestamp_cmd
+  changed_when: false
+
+- name: Store deploy timestamp
+  ansible.builtin.set_fact:
+    newserv_deploy_timestamp: "{{ newserv_deploy_timestamp_cmd.stdout }}"
+
+- name: Ensure backup root exists
+  ansible.builtin.file:
+    path: "{{ newserv_backup_root }}/{{ newserv_deploy_timestamp }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Verify selected runtime dirs exist
+  ansible.builtin.stat:
+    path: "{{ newserv_ships[item].runtime_dir }}"
+  loop: "{{ selected_ship_names }}"
+  register: newserv_runtime_dirs
+
+- name: Fail if any selected runtime dir is missing
+  ansible.builtin.fail:
+    msg: "Runtime dir missing for {{ item.item }}: {{ newserv_ships[item.item].runtime_dir }}"
+  loop: "{{ newserv_runtime_dirs.results }}"
+  when: not item.stat.exists
+
+- name: Verify required files exist in source tree
+  ansible.builtin.stat:
+    path: "{{ newserv_source_dir }}/{{ item }}"
+  loop: "{{ newserv_required_runtime_files }}"
+  register: newserv_required_source_files
+
+- name: Fail if any required source file is missing
+  ansible.builtin.fail:
+    msg: "Required source runtime file missing: {{ item.item }}"
+  loop: "{{ newserv_required_source_files.results }}"
+  when: not item.stat.exists
+
+- name: Sync safe runtime asset directories
+  ansible.builtin.command:
+    cmd: >-
+      rsync -a
+      {{ newserv_source_dir }}/{{ item.1 }}/
+      {{ newserv_ships[item.0].runtime_dir }}/{{ item.1 }}/
+  loop: "{{ selected_ship_names | product(newserv_safe_asset_paths) | list }}"
+  when: newserv_sync_safe_assets | bool
+  changed_when: true
+
+- name: Verify required files exist in selected runtime dirs after sync
+  ansible.builtin.stat:
+    path: "{{ newserv_ships[item.0].runtime_dir }}/{{ item.1 }}"
+  loop: "{{ selected_ship_names | product(newserv_required_runtime_files) | list }}"
+  register: newserv_required_runtime_files_stat
+
+- name: Fail if required runtime file is missing after sync
+  ansible.builtin.fail:
+    msg: "Required runtime file missing for {{ item.item.0 }}: {{ newserv_ships[item.item.0].runtime_dir }}/{{ item.item.1 }}"
+  loop: "{{ newserv_required_runtime_files_stat.results }}"
+  when: not item.stat.exists
+
+- name: Back up current ship binaries
+  ansible.builtin.copy:
+    src: "{{ newserv_ships[item].runtime_dir }}/newserv"
+    dest: "{{ newserv_backup_root }}/{{ newserv_deploy_timestamp }}/newserv-{{ item }}"
+    remote_src: true
+    owner: root
+    group: root
+    mode: "0755"
+  loop: "{{ selected_ship_names }}"
+  when: newserv_ships[item].runtime_dir is defined
+
+- name: Copy new binary into selected runtime dirs as .next
+  ansible.builtin.copy:
+    src: "{{ newserv_built_binary }}"
+    dest: "{{ newserv_ships[item].runtime_dir }}/newserv.next"
+    remote_src: true
+    owner: root
+    group: root
+    mode: "0755"
+  loop: "{{ selected_ship_names }}"
+
+- name: Install new binary into selected runtime dirs
+  ansible.builtin.command:
+    cmd: "install -m 0755 -o root -g root {{ newserv_ships[item].runtime_dir }}/newserv.next {{ newserv_ships[item].runtime_dir }}/newserv"
+  loop: "{{ selected_ship_names }}"
+  changed_when: true
+
+- name: Remove .next binaries
+  ansible.builtin.file:
+    path: "{{ newserv_ships[item].runtime_dir }}/newserv.next"
+    state: absent
+  loop: "{{ selected_ship_names }}"
+
+- name: Restart selected newserv services
+  ansible.builtin.systemd:
+    name: "{{ newserv_ships[item].service }}"
+    state: restarted
+    daemon_reload: false
+  loop: "{{ selected_ship_names }}"
+
+- name: Wait for selected ship HTTP endpoints
+  ansible.builtin.uri:
+    url: "{{ newserv_ships[item].http_url }}"
+    method: GET
+    status_code: 200
+    return_content: false
+  loop: "{{ selected_ship_names }}"
+  register: newserv_http_checks
+  retries: 12
+  delay: 5
+  until: newserv_http_checks.status == 200
+  when:
+    - newserv_ships[item].http_url is defined
+    - newserv_ships[item].http_url | length > 0
+
+- name: Show selected service status
+  ansible.builtin.command:
+    cmd: "systemctl status {{ newserv_ships[item].service }}"
+  loop: "{{ selected_ship_names }}"
+  register: newserv_service_status
+  changed_when: false
+  failed_when: false
+
+- name: Deployment summary
+  ansible.builtin.debug:
+    msg:
+      - "deployed_ref={{ newserv_ref }}"
+      - "deployed_commit={{ newserv_checked_out_commit.stdout | default('unknown') }}"
+      - "ship={{ item }}"
+      - "service={{ newserv_ships[item].service }}"
+      - "runtime_dir={{ newserv_ships[item].runtime_dir }}"
+      - "backup={{ newserv_backup_root }}/{{ newserv_deploy_timestamp }}/newserv-{{ item }}"
+  loop: "{{ selected_ship_names }}"

@@ -1,0 +1,9 @@
+[01mall[39;49;00m[31;01m:[39;49;00m
+  [01mchildren[39;49;00m[31;01m:[39;49;00m
+    [01mpsopeeps_main[39;49;00m[31;01m:[39;49;00m
+      [01mhosts[39;49;00m[31;01m:[39;49;00m
+        [01mpsopeeps[39;49;00m[31;01m:[39;49;00m
+          [01mansible_host[39;49;00m[31;01m:[39;49;00m [32;01m"YOUR_SERVER_IP_OR_VPN_IP"[39;49;00m
+          [01mansible_user[39;49;00m[31;01m:[39;49;00m [32;01m"YOUR_SSH_USER"[39;49;00m
+          [01mansible_port[39;49;00m[31;01m:[39;49;00m [33;01m22[39;49;00m
+          [31;01m#[39;49;00m [01mansible_ssh_private_key_file[39;49;00m[31;01m:[39;49;00m [32;01m"/home/YOUR_USER/.ssh/YOUR_KEY"[39;49;00m

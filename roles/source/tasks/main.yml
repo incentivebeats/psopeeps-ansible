@@ -1,0 +1,52 @@
+---
+- name: Ensure source parent directory exists
+  ansible.builtin.file:
+    path: "{{ newserv_source_dir | dirname }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Check whether source repo exists
+  ansible.builtin.stat:
+    path: "{{ newserv_source_dir }}/.git"
+  register: newserv_git_dir
+
+- name: Check existing repo status before update
+  ansible.builtin.command:
+    cmd: git status --short
+    chdir: "{{ newserv_source_dir }}"
+  register: newserv_git_status_before
+  changed_when: false
+  when: newserv_git_dir.stat.exists
+
+- name: Refuse to update dirty source tree
+  ansible.builtin.fail:
+    msg: "Source tree is dirty at {{ newserv_source_dir }}: {{ newserv_git_status_before.stdout }}"
+  when:
+    - newserv_git_dir.stat.exists
+    - newserv_git_status_before.stdout | length > 0
+
+- name: Clone or update PSO Peeps newserv source
+  ansible.builtin.git:
+    repo: "{{ newserv_repo }}"
+    dest: "{{ newserv_source_dir }}"
+    version: "{{ newserv_ref }}"
+    update: true
+    force: false
+    accept_hostkey: true
+  register: newserv_git_checkout
+
+- name: Read checked out commit
+  ansible.builtin.command:
+    cmd: git rev-parse HEAD
+    chdir: "{{ newserv_source_dir }}"
+  register: newserv_checked_out_commit
+  changed_when: false
+
+- name: Show checked out source
+  ansible.builtin.debug:
+    msg:
+      - "repo={{ newserv_repo }}"
+      - "ref={{ newserv_ref }}"
+      - "commit={{ newserv_checked_out_commit.stdout }}"

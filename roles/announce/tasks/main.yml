@@ -1,0 +1,33 @@
+---
+- name: Check announcement wrapper
+  ansible.builtin.stat:
+    path: "{{ newserv_announce_command }}"
+  register: newserv_announce_command_stat
+  when: newserv_announce_enabled | bool
+
+- name: Fail if announcement wrapper is required but missing
+  ansible.builtin.fail:
+    msg: "Announcement command missing: {{ newserv_announce_command }}"
+  when:
+    - newserv_announce_enabled | bool
+    - newserv_announce_required | bool
+    - not newserv_announce_command_stat.stat.exists
+
+- name: Announce restart to selected ships
+  ansible.builtin.command:
+    argv:
+      - "{{ newserv_announce_command }}"
+      - "{{ item }}"
+      - "{{ newserv_announce_message }}"
+  loop: "{{ selected_ship_names }}"
+  when:
+    - newserv_announce_enabled | bool
+    - newserv_announce_command_stat.stat.exists
+  changed_when: true
+
+- name: Pause after announcement
+  ansible.builtin.pause:
+    seconds: "{{ newserv_announce_pause_seconds }}"
+  when:
+    - newserv_announce_enabled | bool
+    - newserv_announce_command_stat.stat.exists

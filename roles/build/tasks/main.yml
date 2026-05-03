@@ -1,0 +1,43 @@
+---
+- name: Ensure build directory parent exists
+  ansible.builtin.file:
+    path: "{{ newserv_build_dir | dirname }}"
+    state: directory
+    owner: root
+    group: root
+    mode: "0755"
+
+- name: Configure newserv build
+  ansible.builtin.command:
+    argv:
+      - cmake
+      - -S
+      - "{{ newserv_source_dir }}"
+      - -B
+      - "{{ newserv_build_dir }}"
+      - "-DCMAKE_BUILD_TYPE={{ newserv_build_type }}"
+      - "-DCMAKE_CXX_FLAGS={{ newserv_cmake_cxx_flags }}"
+  register: newserv_cmake_configure
+  changed_when: true
+
+- name: Build newserv
+  ansible.builtin.command:
+    cmd: "cmake --build {{ newserv_build_dir }} -j{{ newserv_build_jobs }}"
+  register: newserv_cmake_build
+  changed_when: true
+
+- name: Verify built binary exists
+  ansible.builtin.stat:
+    path: "{{ newserv_built_binary }}"
+  register: newserv_built_binary_stat
+
+- name: Fail if built binary is missing
+  ansible.builtin.fail:
+    msg: "Built binary not found at {{ newserv_built_binary }}"
+  when: not newserv_built_binary_stat.stat.exists
+
+- name: Show built binary
+  ansible.builtin.debug:
+    msg:
+      - "binary={{ newserv_built_binary }}"
+      - "size={{ newserv_built_binary_stat.stat.size }}"
