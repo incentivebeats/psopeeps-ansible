@@ -1,65 +1,65 @@
-[31;01m-[39;49;00m[31;01m-[39;49;00m[31;01m-[39;49;00m
-[31;01m#[39;49;00m [36;01mGit[39;49;00m [01msource[39;49;00m[31;01m.[39;49;00m [36;01mUse[39;49;00m [01man[39;49;00m [01mannotated[39;49;00m [01mtag[39;49;00m [35;01mfor[39;49;00m [01mnormal[39;49;00m [01mdeploys[39;49;00m[31;01m.[39;49;00m
-[31;01m#[39;49;00m [36;01mA[39;49;00m [01mraw[39;49;00m [01mcommit[39;49;00m [36;01mSHA[39;49;00m [01malso[39;49;00m [01mworks[39;49;00m [35;01mfor[39;49;00m [01memergency[39;49;00m[31;01m/[39;49;00m[01mdev[39;49;00m [01mdeployments[39;49;00m[31;01m.[39;49;00m
-[01mnewserv_repo[39;49;00m[31;01m:[39;49;00m [32;01m"https://github.com/YOUR_ORG_OR_USER/psopeeps-newserv.git"[39;49;00m
-[01mnewserv_ref[39;49;00m[31;01m:[39;49;00m [32;01m"YOUR_NEWSERV_TAG_OR_COMMIT"[39;49;00m
+---
+# Git source. Use an annotated tag for normal deploys.
+# A raw commit SHA also works for emergency/dev deployments.
+newserv_repo: "https://github.com/YOUR_ORG_OR_USER/psopeeps-newserv.git"
+newserv_ref: "YOUR_NEWSERV_TAG_OR_COMMIT"
 
-[31;01m#[39;49;00m [36;01mServer[39;49;00m[31;01m-[39;49;00m[01mside[39;49;00m [01mbuild[39;49;00m [01msource[39;49;00m[31;01m.[39;49;00m
-[01mnewserv_source_dir[39;49;00m[31;01m:[39;49;00m [32;01m"/opt/psopeeps-newserv-src/newserv"[39;49;00m
-[01mnewserv_build_dir[39;49;00m[31;01m:[39;49;00m [32;01m"/opt/psopeeps-newserv-src/newserv/build-ansible"[39;49;00m
+# Server-side build source.
+newserv_source_dir: "/opt/psopeeps-newserv-src/newserv"
+newserv_build_dir: "/opt/psopeeps-newserv-src/newserv/build-ansible"
 
-[01mnewserv_build_type[39;49;00m[31;01m:[39;49;00m [32;01m"RelWithDebInfo"[39;49;00m
-[01mnewserv_build_jobs[39;49;00m[31;01m:[39;49;00m [33;01m4[39;49;00m
+newserv_build_type: "RelWithDebInfo"
+newserv_build_jobs: 4
 
-[01mnewserv_cmake_prefix_path[39;49;00m[31;01m:[39;49;00m [32;01m""[39;49;00m
-[01mnewserv_cmake_cxx_flags[39;49;00m[31;01m:[39;49;00m [32;01m"-Wno-error=mismatched-new-delete"[39;49;00m
+newserv_cmake_prefix_path: ""
+newserv_cmake_cxx_flags: "-Wno-error=mismatched-new-delete"
 
-[01mnewserv_built_binary[39;49;00m[31;01m:[39;49;00m [32;01m"{{ newserv_build_dir }}/newserv"[39;49;00m
-[01mnewserv_backup_root[39;49;00m[31;01m:[39;49;00m [32;01m"/opt/newserv-deploy-backups"[39;49;00m
+newserv_built_binary: "{{ newserv_build_dir }}/newserv"
+newserv_backup_root: "/opt/newserv-deploy-backups"
 
-[01mnewserv_sync_safe_assets[39;49;00m[31;01m:[39;49;00m [35;01mtrue[39;49;00m
-[01mnewserv_safe_asset_paths[39;49;00m[31;01m:[39;49;00m
-  [31;01m-[39;49;00m [32;01m"system/item-tables"[39;49;00m
+newserv_sync_safe_assets: true
+newserv_safe_asset_paths:
+  - "system/item-tables"
 
-[01mnewserv_required_runtime_files[39;49;00m[31;01m:[39;49;00m
-  [31;01m-[39;49;00m [32;01m"system/item-tables/ItemMagEdit-dc-v1.prs"[39;49;00m
-  [31;01m-[39;49;00m [32;01m"system/item-tables/ItemMagEdit-dc-v2.prs"[39;49;00m
-  [31;01m-[39;49;00m [32;01m"system/item-tables/ItemMagEdit-xb-v3.prs"[39;49;00m
-  [31;01m-[39;49;00m [32;01m"system/item-tables/ItemMagEdit-bb-v4.prs"[39;49;00m
+newserv_required_runtime_files:
+  - "system/item-tables/ItemMagEdit-dc-v1.prs"
+  - "system/item-tables/ItemMagEdit-dc-v2.prs"
+  - "system/item-tables/ItemMagEdit-xb-v3.prs"
+  - "system/item-tables/ItemMagEdit-bb-v4.prs"
 
-[01mnewserv_announce_enabled[39;49;00m[31;01m:[39;49;00m [35;01mfalse[39;49;00m
-[01mnewserv_announce_required[39;49;00m[31;01m:[39;49;00m [35;01mfalse[39;49;00m
-[01mnewserv_announce_command[39;49;00m[31;01m:[39;49;00m [32;01m"/usr/local/sbin/newserv-announce-ship"[39;49;00m
-[01mnewserv_announce_pause_seconds[39;49;00m[31;01m:[39;49;00m [33;01m60[39;49;00m
-[01mnewserv_announce_message[39;49;00m[31;01m:[39;49;00m [32;01m"Maintenance: this ship will restart in 60 seconds for an update. Exit and save now."[39;49;00m
+newserv_announce_enabled: false
+newserv_announce_required: false
+newserv_announce_command: "/usr/local/sbin/newserv-announce-ship"
+newserv_announce_pause_seconds: 60
+newserv_announce_message: "Maintenance: this ship will restart in 60 seconds for an update. Exit and save now."
 
-[01mnewserv_ships[39;49;00m[31;01m:[39;49;00m
-  [01mdev[39;49;00m[31;01m:[39;49;00m
-    [01mruntime_dir[39;49;00m[31;01m:[39;49;00m [32;01m"/opt/newserv-dev"[39;49;00m
-    [01mservice[39;49;00m[31;01m:[39;49;00m [32;01m"newserv-dev.service"[39;49;00m
-    [01mhttp_url[39;49;00m[31;01m:[39;49;00m [32;01m"http://127.0.0.1:19451/y/lobbies"[39;49;00m
+newserv_ships:
+  dev:
+    runtime_dir: "/opt/newserv-dev"
+    service: "newserv-dev.service"
+    http_url: "http://127.0.0.1:19451/y/lobbies"
 
-  [01mtest[39;49;00m[31;01m:[39;49;00m
-    [01mruntime_dir[39;49;00m[31;01m:[39;49;00m [32;01m"/opt/newserv-test"[39;49;00m
-    [01mservice[39;49;00m[31;01m:[39;49;00m [32;01m"newserv-test.service"[39;49;00m
-    [01mhttp_url[39;49;00m[31;01m:[39;49;00m [32;01m"http://127.0.0.1:19351/y/lobbies"[39;49;00m
+  test:
+    runtime_dir: "/opt/newserv-test"
+    service: "newserv-test.service"
+    http_url: "http://127.0.0.1:19351/y/lobbies"
 
-  [01mlive[39;49;00m[31;01m:[39;49;00m
-    [01mruntime_dir[39;49;00m[31;01m:[39;49;00m [32;01m"/opt/newserv-live"[39;49;00m
-    [01mservice[39;49;00m[31;01m:[39;49;00m [32;01m"newserv-live.service"[39;49;00m
-    [01mhttp_url[39;49;00m[31;01m:[39;49;00m [32;01m"http://127.0.0.1:19151/y/lobbies"[39;49;00m
+  live:
+    runtime_dir: "/opt/newserv-live"
+    service: "newserv-live.service"
+    http_url: "http://127.0.0.1:19151/y/lobbies"
 
-  [01mvanilla[39;49;00m[31;01m:[39;49;00m
-    [01mruntime_dir[39;49;00m[31;01m:[39;49;00m [32;01m"/opt/newserv-vanilla"[39;49;00m
-    [01mservice[39;49;00m[31;01m:[39;49;00m [32;01m"newserv-vanilla.service"[39;49;00m
-    [01mhttp_url[39;49;00m[31;01m:[39;49;00m [32;01m"http://127.0.0.1:19251/y/lobbies"[39;49;00m
+  vanilla:
+    runtime_dir: "/opt/newserv-vanilla"
+    service: "newserv-vanilla.service"
+    http_url: "http://127.0.0.1:19251/y/lobbies"
 
-  [01mhardcore[39;49;00m[31;01m:[39;49;00m
-    [01mruntime_dir[39;49;00m[31;01m:[39;49;00m [32;01m"/opt/newserv-hardcore"[39;49;00m
-    [01mservice[39;49;00m[31;01m:[39;49;00m [32;01m"newserv-hardcore.service"[39;49;00m
-    [01mhttp_url[39;49;00m[31;01m:[39;49;00m [32;01m"http://127.0.0.1:19551/y/lobbies"[39;49;00m
+  hardcore:
+    runtime_dir: "/opt/newserv-hardcore"
+    service: "newserv-hardcore.service"
+    http_url: "http://127.0.0.1:19551/y/lobbies"
 
-  [01mfrontend[39;49;00m[31;01m:[39;49;00m
-    [01mruntime_dir[39;49;00m[31;01m:[39;49;00m [32;01m"/opt/newserv-src/newserv"[39;49;00m
-    [01mservice[39;49;00m[31;01m:[39;49;00m [32;01m"newserv.service"[39;49;00m
-    [01mhttp_url[39;49;00m[31;01m:[39;49;00m [32;01m""[39;49;00m
+  frontend:
+    runtime_dir: "/opt/newserv-src/newserv"
+    service: "newserv.service"
+    http_url: ""

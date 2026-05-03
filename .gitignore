@@ -1,13 +1,13 @@
-[31;01m#[39;49;00m [36;01mReal[39;49;00m [35;01mlocal[39;49;00m [01minventory[39;49;00m[31;01m/[39;49;00m[01msecrets[39;49;00m
-[01minventory[39;49;00m[31;01m.[39;49;00m[01myml[39;49;00m
-[01mgroup_vars[39;49;00m[31;01m/[39;49;00m[01mvault[39;49;00m[31;01m.[39;49;00m[01myml[39;49;00m
-[31;01m.[39;49;00m[01mvault_pass[39;49;00m[31;01m*[39;49;00m
-[31;01m*[39;49;00m[31;01m.[39;49;00m[35;01mretry[39;49;00m
+# Real local inventory/secrets
+inventory.yml
+group_vars/vault.yml
+.vault_pass*
+*.retry
 
-[31;01m#[39;49;00m [36;01mAnsible[39;49;00m [01mcaches[39;49;00m
-[01m__pycache__[39;49;00m[31;01m/[39;49;00m
-[31;01m*[39;49;00m[31;01m.[39;49;00m[01mpyc[39;49;00m
+# Ansible caches
+__pycache__/
+*.pyc
 
-[31;01m#[39;49;00m [36;01mLocal[39;49;00m [01meditor[39;49;00m[31;01m/[39;49;00m[01mtemp[39;49;00m [01mfiles[39;49;00m
-[31;01m*[39;49;00m[31;01m.[39;49;00m[01mswp[39;49;00m
-[31;01m*[39;49;00m[31;01m~[39;49;00m
+# Local editor/temp files
+*.swp
+*~
